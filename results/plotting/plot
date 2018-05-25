@@ -1,0 +1,97 @@
+#!/bin/bash
+
+function extract(){
+    SCENARIO=$1
+    PHASE=$2
+    METRIC=$3
+    N=$4
+    CONFIGURATION=$5
+    CONFIG_SHORT=$6
+
+    cat ../../results/final/mongodb/$SCENARIO/$CONFIGURATION/plots/data.json | \
+        jq -r ".$PHASE.$METRIC | 
+            \"$N,$CONFIG_SHORT,\" + (.avg|tostring) + \",\" + (.std|tostring) + \",\" + (.min|tostring) + \",\" + (.max|tostring)"
+}
+
+function exportDatSingleMetric(){
+    SCENARIO=$1
+    PHASE=$2
+    METRIC1=$3
+
+    echo "id,Configuration,Avg,Std,Min,Max" > tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "$METRIC1" "1" "baremetal_dockered" "P-C-L" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "$METRIC1" "2" "baremetal_dockered_attached_vol" "P-C-H" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "$METRIC1" "3" "vm" "VM-L" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "$METRIC1" "4" "vm_dockered" "VM-C-L" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "$METRIC1" "5" "vm_dockered_attached_vol" "VM-C-H" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat    
+}
+
+function exportDatDoubleMetric(){
+    SCENARIO=$1
+    PHASE=$2
+    METRIC1=$3
+    METRIC2=$4
+
+    echo "id,Configuration,Avg,Std,Min,Max" > tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "${METRIC1}" "1" "baremetal_dockered" "P-C-L" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "${METRIC2}" "1.3" "baremetal_dockered" "" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "${METRIC1}" "2" "baremetal_dockered_attached_vol" "P-C-H" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "${METRIC2}" "2.3" "baremetal_dockered_attached_vol" "" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat    
+    extract $SCENARIO "$PHASE" "${METRIC1}" "3" "vm" "VM-L" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "${METRIC2}" "3.3" "vm" "" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat    
+    extract $SCENARIO "$PHASE" "${METRIC1}" "4" "vm_dockered" "VM-C-L" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "${METRIC2}" "4.3" "vm_dockered" "" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+    extract $SCENARIO "$PHASE" "${METRIC1}" "5" "vm_dockered_attached_vol" "VM-C-H" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat    
+    extract $SCENARIO "$PHASE" "${METRIC2}" "5.3" "vm_dockered_attached_vol" "" >> tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat
+}
+
+function plot(){
+    SCENARIO=$1
+    PHASE=$2
+    YLABEL=$3
+    METRIC1=$4
+    METRIC2=$5
+
+    # write dat file
+    if [[ $METRIC2 ]] ; then
+        echo "exportDatDoubleMetric"
+        exportDatDoubleMetric $SCENARIO $PHASE $METRIC1 $METRIC2
+        # find global min/max
+        min=$(cat tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat | cut -d',' -f5 | tail -n +2 | sort -g  | head -n1)
+        max=$(cat tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat | cut -d',' -f6 | tail -n +2 | sort -g -r  | head -n1)
+        #echo "min: $min - max: $max"        
+    else
+        echo "exportDatSingleMetric"
+        exportDatSingleMetric $SCENARIO $PHASE $METRIC1
+        # find global min/max
+        min=$(cat tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat | cut -d',' -f5 | tail -n +2 | sort -g  | head -n1)
+        max=$(cat tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat | cut -d',' -f6 | tail -n +2 | sort -g -r  | head -n1)
+        #echo "min: $min - max: $max"        
+    fi
+
+    # write gnuplot script
+    export INFILE="tmp/${SCENARIO}_${PHASE}_${METRIC1}.dat"
+    export OUTFILE="out/${SCENARIO}_${PHASE}_${METRIC1}.pdf"
+    export YMIN=$(echo "$min*0.9" | bc)
+    export YMAX=$(echo "$max*1.1" | bc)
+    export YLABEL="$YLABEL"
+
+    cat gnuplot.tmpl | envsubst > tmp/${SCENARIO}_${PHASE}_${METRIC1}.gp
+
+    # run gnuplot
+    gnuplot tmp/${SCENARIO}_${PHASE}_${METRIC1}.gp
+}
+
+plot "disk-bound-workload" "metricsLoadPhase" "Total Runtime [min]" "runtime"
+plot "disk-bound-workload" "metricsLoadPhase" "Throughput [ops]" "throughput"
+plot "disk-bound-workload" "metricsLoadPhase" "Inserts [µs]" "ins_avg_lat"
+plot "disk-bound-workload" "metricsWorkloadBPhase" "Total Runtime [min]" "runtime"
+plot "disk-bound-workload" "metricsWorkloadBPhase" "Throughput [ops]" "throughput"
+plot "disk-bound-workload" "metricsWorkloadBPhase" "Reads / Updates [µs]" "read_avg_lat" "upd_avg_lat"
+
+plot "memory-bound-workload" "metricsLoadPhase" "Total Runtime [min]" "runtime"
+plot "memory-bound-workload" "metricsLoadPhase" "Throughput [ops]" "throughput"
+plot "memory-bound-workload" "metricsLoadPhase" "Inserts [µs]" "ins_avg_lat"
+plot "memory-bound-workload" "metricsWorkloadBPhase" "Total Runtime [min]" "runtime"
+plot "memory-bound-workload" "metricsWorkloadBPhase" "Throughput [ops]" "throughput"
+plot "memory-bound-workload" "metricsWorkloadBPhase" "Reads / Updates [µs]" "read_avg_lat" "upd_avg_lat"

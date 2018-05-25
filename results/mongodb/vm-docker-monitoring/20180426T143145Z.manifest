@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "fileName": "20180426T143145Z.meta",
+    "size": 807
+  },
+  "limited": false,
+  "files": [
+    {
+      "database": "telegraf",
+      "policy": "autogen",
+      "shardID": 27,
+      "fileName": "20180426T143145Z.s27.tar.gz",
+      "size": 27763200,
+      "lastModified": 0
+    }
+  ]
+}

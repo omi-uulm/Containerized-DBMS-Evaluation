@@ -1,0 +1,14 @@
+[Unit]
+Description=MongoDB for benchmark tests
+Requires=docker.service
+
+[Service]
+RemainAfterExit=yes
+ExecStart=/usr/bin/docker run --restart=unless-stopped -p 27017:27017 --network=host --name mongo_instance01 -d mongo-docker --port 27017 --dbpath /data/mongodb --bind_ip 0.0.0.0 --storageEngine wiredTiger
+
+ExecStop=/usr/bin/docker stop mongo_instance01
+ExecStopPost=/usr/bin/docker rm -f mongo_instance01
+ExecReload=/usr/bin/docker restart mongo_instance01
+
+[Install]
+WantedBy=multi-user.target

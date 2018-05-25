@@ -1,0 +1,46 @@
+version: '2.2'
+services:
+  ycsb:
+    build: 
+      context: .
+      dockerfile: ./ycsb.Dockerfile
+    image: ycsb
+    hostname: ycsb_vm
+    container_name: ycsb_vm
+    volumes:
+    - /srv/test_results:/opt/test_results
+    network_mode: host
+    cpus: 4
+    mem_limit: 2gb 
+    stdin_open: true
+    tty: true
+  mongodb:
+    build: 
+      context: .
+      dockerfile: ./mongo.Dockerfile
+    image: mongo_docker
+    container_name: mongo_instance_docker
+    hostname: mongo_instance_docker
+    network_mode: host
+    cpus: 4
+    mem_limit: 4gb 
+    stdin_open: true
+    tty: true
+    ports: 
+    - 27017:27017/tcp  
+  mongodb_host_vol:
+    build: 
+      context: .
+      dockerfile: ./mongo_attached_host_vol.Dockerfile  
+    image: mongo_docker_host_vol
+    container_name: mongo_instance_host_vol
+    hostname: mongo_docker_host_vol
+    network_mode: host
+    cpus: 4
+    mem_limit: 4gb 
+    stdin_open: true
+    tty: true
+    volumes:
+    - /srv/mongodb-storage:/data/mongodb
+    ports: 
+    - 27018:27018/tcp 

@@ -1,0 +1,4 @@
+Creating mongo_instance_host_vol ... 
+Creating mongo_instance_docker   ... 
+Creating ycsb_vm                 ... 
+[3A[2KCreating mongo_instance_host_vol ... [32mdone[0m[3B[2A[2KCreating mongo_instance_docker   ... [32mdone[0m[2B[1A[2KCreating ycsb_vm                 ... [32mdone[0m[1B

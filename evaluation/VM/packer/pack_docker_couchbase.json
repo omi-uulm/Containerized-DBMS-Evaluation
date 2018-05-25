@@ -1,0 +1,117 @@
+{
+    "variables": {
+        "user_cert": "{{env `OS_CERTIFICATE`}}"
+    },
+    "builders": [
+        {
+            "type": "openstack",
+            "tenant_id": "4f86079085e849a9980c0728e2fd2425",
+            "tenant_name": "db-docker-vm-evaluation",
+            "ssh_keypair_name": "packer_key",
+            "ssh_private_key_file": "{{ user `user_cert`}}",
+            "floating_ip": "134.60.64.166",
+            "ssh_username": "ubuntu",
+            "region": "RegionOne",
+            "image_name": "cb_docker",
+            "source_image": "f688f98d-7e62-4404-a672-1fc054fcfa6c",
+            "flavor": "medium",
+            "networks": ["18c37e0e-4245-43f8-83ab-1864680264ac"],
+            "availability_zone": "db-docker-vm-evaluation",
+            "security_groups": ["597ae6fd-e963-494e-9f4f-e88eacd5f78a"]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "../db_scripts/install_docker.sh"
+        },{
+            "type": "file",
+            "source": "../db_scripts/couchbase/couchbase.Dockerfile",
+            "destination": "/tmp/Dockerfile"
+        },{
+            "type": "file",
+            "source": "../db_scripts/couchbase/cb_entrypoint.sh",
+            "destination": "/tmp/cb_entrypoint.sh"
+        },{
+            "type": "file",
+            "source": "../db_scripts/couchbase/cb_runit",
+            "destination": "/tmp/cb_runit"
+        },{
+            "type": "file",
+            "source": "../db_scripts/couchbase/dummy.sh",
+            "destination": "/tmp/dummy.sh"
+        },{
+            "type": "file",
+            "source": "../db_scripts/couchbase/cb_init.sh",
+            "destination": "/tmp/cb_init.sh"
+        },{
+            "type": "file",
+            "source": "../db_scripts/couchbase/cb_create_bucket.sh",
+            "destination": "/tmp/cb_create_bucket.sh"
+        },{
+            "type": "file",
+            "source": "../db_scripts/couchbase/cb_delete_bucket.sh",
+            "destination": "/tmp/cb_delete_bucket.sh"
+        },{
+            "type": "shell",
+            "inline": [
+                "mkdir /home/ubuntu/dockerbuild",
+                "mv /tmp/Dockerfile /home/ubuntu/dockerbuild",
+                "mv /tmp/cb_entrypoint.sh /home/ubuntu/dockerbuild",
+                "mv /tmp/cb_runit /home/ubuntu/dockerbuild",
+                "mv /tmp/dummy.sh /home/ubuntu/dockerbuild",
+                "mv /tmp/cb_init.sh /home/ubuntu/dockerbuild",
+                "mv /tmp/cb_create_bucket.sh /home/ubuntu/dockerbuild",
+                "mv /tmp/cb_delete_bucket.sh /home/ubuntu/dockerbuild",
+                "cd /home/ubuntu/dockerbuild",
+                "sudo docker build -t couchbase-docker ."
+            ]
+        },{
+            "type": "file",
+            "source": "../db_scripts/couchbase/couchbase_docker.service",
+            "destination": "/tmp/couchbase_docker.service" 
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/couchbase_docker.service /etc/systemd/system",
+                "sudo systemctl enable couchbase_docker.service",
+                "sudo systemctl start couchbase_docker.service",
+                "sudo usermod -a -G docker ubuntu"
+            ]
+        },{
+            "type": "shell",
+            "script": "../monitoring/telegraf/setup_telegraf.sh"
+        },{
+            "type": "file",
+            "source": "../monitoring/telegraf/couchbase_docker.conf",
+            "destination": "/tmp/telegraf.conf"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/telegraf.conf /etc/telegraf/telegraf.conf"
+                ]
+        },{
+            "type": "file",
+            "source": "./authorized_keys",
+            "destination": "/tmp/authorized_keys"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/authorized_keys /home/ubuntu/.ssh"
+            ]
+        },{
+            "type": "file",
+            "source": "./ssh_config",
+            "destination": "/home/ubuntu/.ssh/config"
+        },{
+            "type": "file",
+            "source": "./default-environment",
+            "destination": "/tmp/default-environment"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/default-environment /etc/environment"
+            ]
+        }
+    ]
+}

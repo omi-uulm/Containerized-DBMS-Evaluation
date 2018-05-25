@@ -1,0 +1,88 @@
+{
+    "variables": {
+        "user_cert": "{{env `OS_CERTIFICATE`}}"
+    },
+    "builders": [
+        {
+            "type": "openstack",
+            "tenant_id": "4f86079085e849a9980c0728e2fd2425",
+            "tenant_name": "db-docker-vm-evaluation",
+            "ssh_keypair_name": "packer_key",
+            "ssh_private_key_file": "{{ user `user_cert`}}",
+            "floating_ip": "134.60.64.166",
+            "ssh_username": "ubuntu",
+            "region": "RegionOne",
+            "image_name": "mongo_db_docker_20180423",
+            "source_image": "f688f98d-7e62-4404-a672-1fc054fcfa6c",
+            "flavor": "medium",
+            "networks": ["18c37e0e-4245-43f8-83ab-1864680264ac"],
+            "availability_zone": "db-docker-vm-evaluation",
+            "security_groups": ["597ae6fd-e963-494e-9f4f-e88eacd5f78a"]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "../db_scripts/install_docker.sh"
+        },{
+            "type": "file",
+            "source": "../db_scripts/mongodb/mongo.Dockerfile",
+            "destination": "/tmp/Dockerfile"
+        },{
+            "type": "file",
+            "source": "../db_scripts/mongodb/mongod.conf",
+            "destination": "/tmp/mongod.conf"
+        },{
+            "type": "shell",
+            "inline": [
+                "mkdir /home/ubuntu/dockerbuild",
+                "mv /tmp/Dockerfile /home/ubuntu/dockerbuild",
+                "mv /tmp/mongod.conf /home/ubuntu/dockerbuild/mongod.conf",
+                "cd /home/ubuntu/dockerbuild",
+                "sudo docker build -t mongo-docker ."
+            ]
+        },{
+            "type": "file",
+            "source": "../db_scripts/mongodb/mongodb_docker.service",
+            "destination": "/tmp/mongodb_docker.service" 
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/mongodb_docker.service /etc/systemd/system",
+                "sudo systemctl enable mongodb_docker.service",
+                "sudo systemctl start mongodb_docker.service",
+                "sudo usermod -a -G docker ubuntu"
+            ]
+        },{
+            "type": "shell",
+            "script": "../monitoring/telegraf/setup_telegraf.sh"
+        },{
+            "type": "file",
+            "source": "../monitoring/telegraf/mongodb_docker.conf",
+            "destination": "/tmp/telegraf.conf"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/telegraf.conf /etc/telegraf/telegraf.conf"
+                ]
+        },{
+            "type": "file",
+            "source": "./authorized_keys",
+            "destination": "/tmp/authorized_keys"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/authorized_keys /home/ubuntu/.ssh"
+            ]
+        },{
+            "type": "file",
+            "source": "./default-environment",
+            "destination": "/tmp/default-environment"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/default-environment /etc/environment"
+            ]
+        }
+    ]
+}

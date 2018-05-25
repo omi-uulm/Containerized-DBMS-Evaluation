@@ -1,0 +1,9 @@
+#this vars will be overwritten by ycsb-node via ssh for each test run
+# they are used from telegraf
+export EVALUATION_RUN="0"
+export WORKLOAD="a"
+
+#influxdb
+export INFLUXDB_URL="http://134.60.64.111:8086"
+export INFLUX_USER="omicloud"
+export INFLUX_PASSWORD="DockerVmBench"

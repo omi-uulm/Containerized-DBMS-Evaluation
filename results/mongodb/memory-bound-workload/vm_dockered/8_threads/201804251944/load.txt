@@ -1,0 +1,50 @@
+/usr/lib/jvm/java-8-oracle/bin/java -cp /home/ubuntu/ycsb-0.12.0/mongodb-binding/conf:/home/ubuntu/ycsb-0.12.0/conf:/home/ubuntu/ycsb-0.12.0/lib/HdrHistogram-2.1.4.jar:/home/ubuntu/ycsb-0.12.0/lib/htrace-core4-4.1.0-incubating.jar:/home/ubuntu/ycsb-0.12.0/lib/jackson-core-asl-1.9.4.jar:/home/ubuntu/ycsb-0.12.0/lib/core-0.12.0.jar:/home/ubuntu/ycsb-0.12.0/lib/jackson-mapper-asl-1.9.4.jar:/home/ubuntu/ycsb-0.12.0/mongodb-binding/lib/logback-classic-1.1.2.jar:/home/ubuntu/ycsb-0.12.0/mongodb-binding/lib/slf4j-api-1.6.4.jar:/home/ubuntu/ycsb-0.12.0/mongodb-binding/lib/mongo-java-driver-3.0.3.jar:/home/ubuntu/ycsb-0.12.0/mongodb-binding/lib/mongodb-binding-0.12.0.jar:/home/ubuntu/ycsb-0.12.0/mongodb-binding/lib/mongodb-async-driver-2.0.1.jar:/home/ubuntu/ycsb-0.12.0/mongodb-binding/lib/logback-core-1.1.2.jar com.yahoo.ycsb.Client -db com.yahoo.ycsb.db.MongoDbClient -s -threads 8 -P workloads/workloada -p recordcount=2000000 -p operationcount=10000000 -threads 8 -p mongodb.url=mongodb://10.1.1.14:27017/ycsb?w=1 -load
+YCSB Client 0.12.0
+Command line: -db com.yahoo.ycsb.db.MongoDbClient -s -threads 8 -P workloads/workloada -p recordcount=2000000 -p operationcount=10000000 -threads 8 -p mongodb.url=mongodb://10.1.1.14:27017/ycsb?w=1 -load
+Loading workload...
+Starting test.
+2018-04-25 19:44:25:140 0 sec: 0 operations; est completion in 0 seconds 
+mongo client connection created with mongodb://10.1.1.14:27017/ycsb?w=1
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+2018-04-25 19:44:35:114 10 sec: 168034 operations; 16803.4 current ops/sec; est completion in 1 minutes [INSERT: Count=168054, Max=113151, Min=188, Avg=453.56, 90=539, 99=1032, 99.9=7499, 99.99=18335] 
+2018-04-25 19:44:45:114 20 sec: 363951 operations; 19591.7 current ops/sec; est completion in 1 minutes [INSERT: Count=195907, Max=21775, Min=195, Avg=405.01, 90=477, 99=754, 99.9=5947, 99.99=11951] 
+2018-04-25 19:44:55:114 30 sec: 553859 operations; 18990.8 current ops/sec; est completion in 1 minutes [INSERT: Count=189904, Max=16911, Min=196, Avg=417.83, 90=498, 99=831, 99.9=5751, 99.99=11063] 
+2018-04-25 19:45:05:114 40 sec: 745347 operations; 19148.8 current ops/sec; est completion in 1 minutes [INSERT: Count=191490, Max=18095, Min=184, Avg=414.46, 90=498, 99=902, 99.9=7231, 99.99=10831] 
+2018-04-25 19:45:15:114 50 sec: 923348 operations; 17800.1 current ops/sec; est completion in 59 seconds [INSERT: Count=178000, Max=156415, Min=196, Avg=446.16, 90=514, 99=979, 99.9=7547, 99.99=62943] 
+2018-04-25 19:45:25:114 60 sec: 1110453 operations; 18710.5 current ops/sec; est completion in 49 seconds [INSERT: Count=187106, Max=42143, Min=195, Avg=424.22, 90=500, 99=1000, 99.9=7447, 99.99=11727] 
+2018-04-25 19:45:35:114 70 sec: 1297150 operations; 18669.7 current ops/sec; est completion in 38 seconds [INSERT: Count=186695, Max=24719, Min=193, Avg=425.28, 90=513, 99=995, 99.9=6503, 99.99=12487] 
+2018-04-25 19:45:45:114 80 sec: 1475317 operations; 17816.7 current ops/sec; est completion in 29 seconds [INSERT: Count=178168, Max=137855, Min=196, Avg=445.89, 90=531, 99=1231, 99.9=7107, 99.99=14743] 
+2018-04-25 19:45:55:114 90 sec: 1657671 operations; 18235.4 current ops/sec; est completion in 19 seconds [INSERT: Count=182357, Max=42463, Min=188, Avg=435.51, 90=526, 99=1197, 99.9=7479, 99.99=15271] 
+2018-04-25 19:46:05:114 100 sec: 1840355 operations; 18268.4 current ops/sec; est completion in 9 seconds [INSERT: Count=182682, Max=24127, Min=192, Avg=434.79, 90=549, 99=1145, 99.9=5347, 99.99=11015] 
+2018-04-25 19:46:14:644 109 sec: 2000000 operations; 16751.84 current ops/sec; [CLEANUP: Count=8, Max=2905, Min=1, Avg=365.25, 90=7, 99=2905, 99.9=2905, 99.99=2905] [INSERT: Count=159637, Max=26655, Min=182, Avg=444.63, 90=560, 99=1341, 99.9=6679, 99.99=14623] 
+[OVERALL], RunTime(ms), 109534.0
+[OVERALL], Throughput(ops/sec), 18259.17066846824
+[TOTAL_GCS_PS_Scavenge], Count, 950.0
+[TOTAL_GC_TIME_PS_Scavenge], Time(ms), 918.0
+[TOTAL_GC_TIME_%_PS_Scavenge], Time(%), 0.8380959336826921
+[TOTAL_GCS_PS_MarkSweep], Count, 0.0
+[TOTAL_GC_TIME_PS_MarkSweep], Time(ms), 0.0
+[TOTAL_GC_TIME_%_PS_MarkSweep], Time(%), 0.0
+[TOTAL_GCs], Count, 950.0
+[TOTAL_GC_TIME], Time(ms), 918.0
+[TOTAL_GC_TIME_%], Time(%), 0.8380959336826921
+[CLEANUP], Operations, 8.0
+[CLEANUP], AverageLatency(us), 365.25
+[CLEANUP], MinLatency(us), 1.0
+[CLEANUP], MaxLatency(us), 2905.0
+[CLEANUP], 95thPercentileLatency(us), 2905.0
+[CLEANUP], 99thPercentileLatency(us), 2905.0
+[INSERT], Operations, 2000000.0
+[INSERT], AverageLatency(us), 430.8687975
+[INSERT], MinLatency(us), 182.0
+[INSERT], MaxLatency(us), 156415.0
+[INSERT], 95thPercentileLatency(us), 592.0
+[INSERT], 99thPercentileLatency(us), 1061.0
+[INSERT], Return=OK, 2000000

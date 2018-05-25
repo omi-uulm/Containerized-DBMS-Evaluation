@@ -1,0 +1,63 @@
+{
+    "variables": {
+        "user_cert": "{{env `OS_CERTIFICATE`}}"
+    },
+    "builders": [
+        {
+            "type": "openstack",
+            "tenant_id": "4f86079085e849a9980c0728e2fd2425",
+            "tenant_name": "db-docker-vm-evaluation",
+            "ssh_keypair_name": "packer_key",
+            "ssh_private_key_file": "{{ user `user_cert`}}",
+            "floating_ip": "134.60.64.166",
+            "ssh_username": "ubuntu",
+            "region": "RegionOne",
+            "image_name": "couchase_vm",
+            "source_image": "f688f98d-7e62-4404-a672-1fc054fcfa6c",
+            "flavor": "medium",
+            "networks": ["18c37e0e-4245-43f8-83ab-1864680264ac"],
+            "availability_zone": "db-docker-vm-evaluation",
+            "security_groups": ["597ae6fd-e963-494e-9f4f-e88eacd5f78a"]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "../db_scripts/couchbase/couchbase_local_setup.sh"
+        },{
+            "type": "shell",
+            "script": "../monitoring/telegraf/setup_telegraf.sh"
+        },{
+            "type": "file",
+            "source": "../monitoring/telegraf/couchbase.conf",
+            "destination": "/tmp/telegraf.conf"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/telegraf.conf /etc/telegraf/telegraf.conf"
+                ]
+        },{
+            "type": "file",
+            "source": "./authorized_keys",
+            "destination": "/tmp/authorized_keys"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/authorized_keys /home/ubuntu/.ssh"
+            ]
+        },{
+            "type": "file",
+            "source": "./ssh_config",
+            "destination": "/home/ubuntu/.ssh/config"
+        },{
+            "type": "file",
+            "source": "./default-environment",
+            "destination": "/tmp/default-environment"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/default-environment /etc/environment"
+            ]
+        }
+    ]
+}

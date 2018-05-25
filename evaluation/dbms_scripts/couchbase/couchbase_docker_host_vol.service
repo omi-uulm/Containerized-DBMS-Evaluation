@@ -1,0 +1,14 @@
+[Unit]
+Description=couchbase for benchmark tests - with attached volume
+Requires=docker.service
+
+[Service]
+RemainAfterExit=yes
+ExecStart=/usr/bin/docker run --restart=unless-stopped -p 8091-8094:8091-8094 -p 11210:11210 -v /home/ubuntu/db/couchbase:/var/lib/couchbase/ --name cb_instance01 -d couchbase-docker
+
+ExecStop=/usr/bin/docker stop couchbase_instance01
+ExecStopPost=/usr/bin/docker rm -f couchbase_instance01
+ExecReload=/usr/bin/docker restart couchbase_instance01
+
+[Install]
+WantedBy=multi-user.target

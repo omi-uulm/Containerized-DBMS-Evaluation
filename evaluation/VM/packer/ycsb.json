@@ -1,0 +1,93 @@
+{
+    "variables": {
+        "user_cert": "{{env `OS_CERTIFICATE`}}"
+    },
+    "builders": [
+        {
+            "type": "openstack",
+            "tenant_id": "4f86079085e849a9980c0728e2fd2425",
+            "tenant_name": "db-docker-vm-evaluation",
+            "ssh_keypair_name": "packer_key",
+            "ssh_private_key_file": "{{ user `user_cert`}}",
+            "floating_ip": "134.60.64.166",
+            "ssh_username": "ubuntu",
+            "region": "RegionOne",
+            "image_name": "ycsb_with_telegraf_20180423",
+            "source_image": "f688f98d-7e62-4404-a672-1fc054fcfa6c",
+            "flavor": "fa628a85-34a0-4a65-aaf7-efb1798d9f36",
+            "networks": ["18c37e0e-4245-43f8-83ab-1864680264ac"],
+            "availability_zone": "db-docker-vm-evaluation",
+            "security_groups": ["597ae6fd-e963-494e-9f4f-e88eacd5f78a"]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "sudo add-apt-repository -y ppa:webupd8team/java",
+                "sudo add-apt-repository -y universe",
+                "sudo apt-get update && sudo apt-get upgrade -y",
+                "echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections",
+                "echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections",
+                "sudo apt-get install -y oracle-java8-installer",
+                "sudo apt-get install -y git",
+                "sudo apt-get install -y maven",
+                "sudo apt-get install -y python",
+                "cd /home/ubuntu",
+                "curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.12.0/ycsb-0.12.0.tar.gz",
+                "tar xfvz ycsb-0.12.0.tar.gz",
+                "cd ycsb-0.12.0"
+                ]
+        },{
+            "type": "shell",
+            "script": "../monitoring/telegraf/setup_telegraf.sh"
+        },{
+            "type": "file",
+            "source": "../monitoring/telegraf/ycsb.conf",
+            "destination": "/tmp/telegraf.conf"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/telegraf.conf /etc/telegraf/telegraf.conf"
+                ]
+        },{
+            "type": "file",
+            "source": "../db_scripts/couchbase/",
+            "destination": "/home/ubuntu/couchbase"
+        },{
+            "type": "file",
+            "source": "./db-bench-key",
+            "destination": "/home/ubuntu/.ssh/"
+        },{
+            "type": "file",
+            "source": "../evaluation_scripts/test_schedule_mongodb.sh",
+            "destination": "/home/ubuntu/"
+        },{
+            "type": "file",
+            "source": "../evaluation_scripts/test_schedule_mongodb_diskbound.sh",
+            "destination": "/home/ubuntu/"
+        },{
+            "type": "file",
+            "source": "../evaluation_scripts/test_schedule_cb.sh",
+            "destination": "/home/ubuntu/"
+        },{
+            "type": "file",
+            "source": "./authorized_keys",
+            "destination": "/tmp/authorized_keys"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/authorized_keys /home/ubuntu/.ssh"
+            ]
+        },{
+            "type": "file",
+            "source": "./default-environment",
+            "destination": "/tmp/default-environment"
+        },{
+            "type": "shell",
+            "inline": [
+                "sudo mv /tmp/default-environment /etc/environment"
+            ]
+        }
+    ]
+}
