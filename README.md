@@ -15,7 +15,7 @@ Daniel Seybold (Ulm University) daniel.seybold@uni-ulm.de
 
 Christopher B. Hauser  (Ulm University) christopher.hauser@uni-ulm.de 
 
-Georg Eisenhart (Ulm University) georg.eisenhardt@uni-ulm.de
+Georg Eisenhart (Ulm University) georg.eisenhart@uni-ulm.de
 
 Simon Volpert (Ulm University) simon.volpert@uni-ulm.de 
 
